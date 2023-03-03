@@ -1,11 +1,6 @@
 SELECT 
         [System.Id],
         [System.WorkItemType],
-        [System.Title],
-        [System.State],
-        [System.AreaPath],
-        [System.AssignedTo],
-        [System.TeamProject],
         [System.CreatedDate],
         [System.ChangedDate] 
 FROM 

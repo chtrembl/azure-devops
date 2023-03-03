@@ -17,7 +17,7 @@ ado:
     projects:
       uri: /_apis/projects?api-version=7.1-preview.4
     workitems:
-      uri: /_apis/wit/workItems?ids=%s&fields=System.Id,System.WorkItemType,System.Title,System.State,System.AreaPath,System.AssignedTo,System.TeamProject,System.CreatedDate,System.ChangedDate
+      uri: /_apis/wit/workitemsbatch?api-version=7.0
     wiql:
       workitems:
         uri: /%s/_apis/wit/wiql?api-version=7.0

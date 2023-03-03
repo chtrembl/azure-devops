@@ -64,8 +64,11 @@ public class ADOServiceImpl implements ADOService {
 
 	private String adoServicesWIQLWorkItemsQuery;
 
+	@Value("classpath:json/workItemsJSON.txt")
+	private Resource workItemsJSONResource;
+
 	@Value("classpath:wiql/workItemsWIQL.txt")
-	Resource workItemsWIQLResource;
+	private Resource workItemsWIQLResource;
 
 	@PostConstruct
 	public void initialize() throws Exception {
@@ -89,15 +92,18 @@ public class ADOServiceImpl implements ADOService {
 						.replace("\n", "").replace("\r", "").replaceAll(" +", " ") + "\"}",
 				this.adoWorkItemHistory, this.adoWorkItemHistory);
 
-		this.loadProjects();
-		this.loadWorkItemIds();
-		this.loadWorkItemMetaData();
+		logger.info("starting loadProjectsStep1()...");
+		this.loadProjectsStep1();
+		logger.info("starting loadProjectsStep2()...");
+		this.loadWorkItemIdsStep2();
+		logger.info("starting loadProjectsStep3()...");
+		this.loadWorkItemMetaDataStep3();
 
 		logger.info("done loading ADO data...");
 	}
 
 	@Override
-	public void loadProjects() {
+	public void loadProjectsStep1() {
 		logger.info(String.format("retrieving projects from %s%s", this.adoServicesUrl, this.adoServicesProjectsUri));
 		List<Project> projects = new ArrayList<Project>();
 		Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
@@ -116,7 +122,7 @@ public class ADOServiceImpl implements ADOService {
 	}
 
 	@Override
-	public void loadWorkItemIds() {
+	public void loadWorkItemIdsStep2() {
 		for (Project project : this.containerEnvironment.getProjects()) {
 			try {
 				String uri = String.format(this.adoServicesWIQLWorkItemsUri, project.getId());
@@ -141,7 +147,7 @@ public class ADOServiceImpl implements ADOService {
 	}
 
 	@Override
-	public void loadWorkItemMetaData() {
+	public void loadWorkItemMetaDataStep3() {
 		logger.info(String.format("retrieving workitem meta data from %s%s", this.adoServicesUrl,
 				this.adoServicesProjectsUri));
 		for (Project project : this.containerEnvironment.getProjects()) {
@@ -151,16 +157,20 @@ public class ADOServiceImpl implements ADOService {
 				String ids = project.getWorkItems().stream().map(w -> String.valueOf(w.getId()))
 						.collect(Collectors.joining(","));
 
-				String uri = String.format(this.adoServicesWorkItemsUri, ids);
-
-				logger.info(String.format("retrieving workitem meta data from %s%s", this.adoServicesUrl, uri));
+				String workItemsBatchRequestBody = String.format(
+						this.workItemsJSONResource.getContentAsString(StandardCharsets.UTF_8)
+								.replace("\n", "").replace("\r", "").replaceAll(" +", " "),
+						ids);
+				
+				logger.info(String.format("retrieving workitem meta data from %s%s with body: %s", this.adoServicesUrl, this.adoServicesWorkItemsUri, workItemsBatchRequestBody));
 
 				Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
-				WorkItemWrapper workItemWrapper = this.adoWebClient.get().uri(uri).accept(MediaType.APPLICATION_JSON)
+				WorkItemWrapper workItemWrapper = this.adoWebClient.post().uri(this.adoServicesWorkItemsUri).accept(MediaType.APPLICATION_JSON)
 						.headers(consumer).header("Accept", MediaType.APPLICATION_JSON_VALUE)
-						.header("Cache-Control", "no-cache")
+						.header("Content-Type", MediaType.APPLICATION_JSON_VALUE).header("Cache-Control", "no-cache")
 						.header("Authorization", getBasicAuthenticationHeader(
 								this.containerEnvironment.getAdoServicesOrg(), this.adoServicesPAT))
+						.body(BodyInserters.fromValue(workItemsBatchRequestBody))
 						.retrieve().bodyToMono(WorkItemWrapper.class).block();
 				project.setWorkItems(workItemWrapper.workItems());
 				project.setLastUpdatedDate(project.getWorkItems().get(project.getWorkItems().size()-1).getChangedDate());
