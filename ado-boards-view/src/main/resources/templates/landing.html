@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head th:replace="~{fragments/head.html :: head}">
+</head>
+<header th:replace="~{fragments/header.html :: header}"> </header>
+
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+
+			<nav th:replace="~{fragments/nav.html :: nav}"></nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<h1 style="padding-top: 20px;" class="h2">Project Overview</h1>
+				<div class="table-responsive">
+
+					<table class="table table-striped table-sm projects">
+						<thead>
+							<tr>
+								<th scope="col">Project</th>
+								<th scope="col">Visibility</th>
+								<th scope="col">Work Items Loaded</th>
+								<th scope="col">Last Updated</th>
+							</tr>
+						</thead>
+						<tbody>
+							<div th:if="${containerEnvironment.projects} != null"
+								th:remove="tag">
+							<tr th:each="project, iStat : ${containerEnvironment.projects}">
+								<td style="text-align: left !important;"><a
+									th:href="@{'/project?id=' + ${project.id}}"
+									style="font-weight: bold; text-decoration: none; color: black;">
+										<span th:text="${project.name}" />
+								</a></td>
+								<td style="text-align: left !important;"><span
+									th:text="${project.visibility}" /></td>
+								<td style="text-align: left !important;"><span
+									th:text="${project.WorkItems.size}" /></td>
+								<td style="text-align: left !important;"><span
+									th:text="${project.lastUpdatedDate}" /></td>
+							</tr>
+						</tbody>
+						</div>
+					</table>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<script src="content/jquery-3.3.1-dist/js/jquery.min.js"></script>
+	<script src="content/jquery.fancyTable/dist/fancyTable.min.js"></script>
+	<script type="text/javascript">
+                  
+            $(document).ready(function(){
+              
+                $(".projects").fancyTable({
+                  /* Column number for initial sorting*/
+                   //sortColumn:0,
+                   /* Setting pagination or enabling */
+                   pagination: true,
+                   /* Rows per page kept for display */
+                   perPage:20,
+                   globalSearch:true
+                   });
+                              
+            });            
+        </script>
+
+	<script
+		src="content/bootstrap-5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+		integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
+		crossorigin="anonymous"></script>
+	<script src="content/dashboard/dashboard.js"></script>
+</body>
+</html>

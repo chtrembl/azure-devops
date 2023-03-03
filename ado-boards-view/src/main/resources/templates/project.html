@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+
+<head th:replace="~{fragments/head.html :: head}">
+</head>
+<header th:replace="~{fragments/header.html :: header}"> </header>
+
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+
+			<nav th:replace="~{fragments/nav.html :: nav}"></nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<h1 style="padding-top:20px;" class="h2"><span th:text="${project.name}"/> Work Items</h1>
+				<div class="table-responsive">
+					
+					<table class="table table-striped table-sm workItems">
+						<thead>
+							<tr>
+								<th scope="col">Id</th>
+								<th scope="col">Type</th>
+								<th scope="col">Title</th>
+								<th scope="col">State</th>
+								<th scope="col">Area</th>
+								<th scope="col">Created</th>
+								<th scope="col">Changed</th>
+							</tr>
+						</thead>
+						<tbody>
+						<div th:if="${project.workItems} != null" th:remove="tag">
+							<tr th:each="workItem, iStat : ${project.workItems}">
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.id}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.workItemType}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.title}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.State}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.AreaPath}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.createdDate}" />
+								</td>
+								<td style="text-align: left !important;">
+									<span th:text="${workItem.changedDate}" />
+								</td>
+							</tr>
+						</div>
+						</tbody>
+					</table>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<script src="content/jquery-3.3.1-dist/js/jquery.min.js"></script>
+	<script src="content/jquery.fancyTable/dist/fancyTable.min.js"></script>
+	<script type="text/javascript">
+                  
+            $(document).ready(function(){
+              
+                $(".workItems").fancyTable({
+                  /* Column number for initial sorting*/
+                   //sortColumn:6,
+                   /* Setting pagination or enabling */
+                   pagination: true,
+                   /* Rows per page kept for display */
+                   perPage:20,
+                   globalSearch:true
+                   });
+                              
+            });            
+        </script>
+
+	<script
+		src="content/bootstrap-5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+		integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
+		crossorigin="anonymous"></script>
+	<script src="content/dashboard/dashboard.js"></script>
+</body>
+</html>

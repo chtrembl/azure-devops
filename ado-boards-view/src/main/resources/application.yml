@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: ado-boards-view
+  thymeleaf:
+    cache: false  
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration #comment this line to enable spring security
+  security: 
+    user:
+      name: admin #username if security is enabled above
+      password: adm!n #password if security is enabled above
+ado:
+  services:
+    url: https://dev.azure.com/${ado.services.org}
+    org: ${ADO_SERVICES_ORG:}
+    pat: ${ADO_SERVICES_PAT:}
+    projects:
+      uri: /_apis/projects?api-version=7.1-preview.4
+    workitems:
+      uri: /_apis/wit/workItems?ids=%s&fields=System.Id,System.WorkItemType,System.Title,System.State,System.AreaPath,System.AssignedTo,System.TeamProject,System.CreatedDate,System.ChangedDate
+    wiql:
+      workitems:
+        uri: /%s/_apis/wit/wiql?api-version=7.0
+  workitem:
+    history: ${ADO_WORK_ITEM_HISTORY:-30d} #query the last 30 days
+  rest:
+    api:
+      requestdelay: ${ADO_REST_API_REQUESTDELAY:250} #sleep for 250ms between rest calls to ADO
+app:
+  version: ADO Boards View 0.1

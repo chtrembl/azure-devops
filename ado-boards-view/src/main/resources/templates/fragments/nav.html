@@ -1,0 +1,35 @@
+ <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+   <div class="position-sticky pt-3 sidebar-sticky">
+     <ul class="nav flex-column">
+       <li class="nav-item">
+         <a class="nav-link" aria-current="page" href="#">
+           <span data-feather="home" class="align-text-bottom"></span>
+           <span th:text="${containerEnvironment.adoServicesOrg}" th:remove="tag"/> Organization
+         </a>
+       </li>
+     
+       <li class="nav-item">
+           	 <a class="nav-link" th:classappend="${currentPage == 'overview' ? 'active' : ''}" aria-current="page" th:href="@{'/'}" style="font-weight: bold; text-decoration: none;">
+		 		<span data-feather="bar-chart-2" class="align-text-bottom"></span>
+	    	   	Overview
+    	   	 </a>
+       </li>
+       
+       <li class="nav-item">
+         <a class="nav-link" href="#">
+           <span data-feather="box" class="align-text-bottom"></span>
+           Projects
+         </a>
+       </li>
+       
+       <div th:if="${containerEnvironment.projects} != null"/>
+	   <li class="nav-item" th:each="currproject, iStat : ${containerEnvironment.projects}">
+	   	 <a class="nav-link" th:classappend="${currentPage == 'project' && currproject.name == project.name ? 'active' : ''}" aria-current="page" th:href="@{'/project?id=' + ${currproject.id}}" style="font-weight: bold; text-decoration: none;">
+		 	<span style="padding-left:24px;" th:text="${currproject.name}" />
+		 </a>
+	   </li>
+	   </div>
+	 
+	  </ul>
+   </div>
+ </nav>
