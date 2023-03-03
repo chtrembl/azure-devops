@@ -2,7 +2,7 @@
 
 Azure DevOps is awesome (as you probably already know) however there are some really great tools for interacting with its data using the Azure DevOps Rest API https://learn.microsoft.com/en-us/rest/api/azure/devops/?view=azure-devops-rest-7.1 and WIQL Queries https://learn.microsoft.com/en-us/azure/devops/boards/queries/wiql-syntax?view=azure-devops
 
-The DevOps Boards View App is a standalone Spring Boot App that you can build & run locally with only Docker needed! It allows you to learn about interacting with Azure DevOps Rest API and see how you could push/pull data for your own use cases as well. This app serves as a starter app to pull all projects and specified work items for a given organization giving a high level glance of each project, quickly, outside of the DevOps product itself. It also rolls up the last changed date to any of the work items that were queried from the REST api and displays that with the project meta data.  Feel free to check it out!
+The DevOps Boards View App is a standalone Spring Boot App that you can build & run locally with only Docker needed! It allows you to learn about interacting with Azure DevOps Rest API and see how you could push/pull data for your own use cases. This app serves as a starter app to pull all projects and specified work items for a given organization giving a high level glance of each project, quickly, outside of the DevOps product itself. It also rolls up the last changed date to any of the work items that were queried from the REST api and displays that with the project meta data.  
 
 ## Building and Running the ado-boards-view app locally
 
@@ -29,15 +29,15 @@ Run the following Docker command to build the ado-view-app and Docker image
 
 	This should successfully build the docker image and you should see it with the ```docker image ls``` command
 
-- Make sure you have you Azure DevOps Org handy and an Azure DevOps PAT (Personal Access Token).  Info on how to do that here https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows
+ - Make sure you have you Azure DevOps Org handy and an Azure DevOps PAT (Personal Access Token).  Info on how to do that here https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows
 
 	You will need 2 permission on your token: Project Read Only and Boards Read Only
 
-- Run the app with the following command:
+ - Run the app with the following command:
 
 	```docker run --rm --name adoboardsview -p 8080:8080 -e ADO_SERVICES_ORG=<your org here> -e ADO_SERVICES_PAT=<your pat here> -e ADO_WORK_ITEM_HISTORY=-7d adoboardsview:latest```
 
-	visit http://localhost:8080
+	You can now use the app! Visit http://localhost:8080 in your browser.
 
 	Notice the 3 parameters ```ADO_SERVICES_ORG``` your org, ```ADO_SERVICES_PAT``` your PAT, and 	```ADO_WORK_ITEM_HISTORY``` 
 
@@ -46,8 +46,10 @@ devops/ado-boards-view/src/main/resources/wiql/workItemsWIQL.txt```
 
 	The default query is pulling every work item back (Epics, Features, Bugs, Tasks etc...) Perhaps you want to limit this to just Epics, Features or just User Stories or whatever you prefer to keep your data manageable. You will see in the command window / application logs when you run the app how things are behaving, which requests are being made and the size of them.
 
-	Once the app is up you can use it. Note that at the moment all of the work items are cached in memory at startup. There is no refresh unless you restart the app (Kill the app ctrl-c) and restart it. This is to avoid overloading your ADO instance and exhausting limits. Also there is a 250ms delay between all HTTP requests, to further delay any exhaustion. This parameter is also configurable ```-e ADO_REST_API_REQUESTDELAY=250```
+	Once the app is up you can use it. Note that at the moment all of the work items are cached in memory at startup. There is no refresh unless you restart the app (Kill the app ```ctrl-c```) and restart it. This is to avoid overloading your ADO instance and exhausting limits. Also there is a 250ms delay between all HTTP requests, to further delay any exhaustion. This parameter is also configurable ```-e ADO_REST_API_REQUESTDELAY=250```
 
 	![overview view](https://github.com/chtrembl/azure-devops/blob/main/ado-boards-view/overview.png)
 
 	![project view](https://github.com/chtrembl/azure-devops/blob/main/ado-boards-view/project.png)
+
+ - To kill the app from the command line: ```ctrl+c```
