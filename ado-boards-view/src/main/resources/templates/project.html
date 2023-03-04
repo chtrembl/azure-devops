@@ -41,10 +41,10 @@
 									<span th:text="${workItem.title}" />
 								</td>
 								<td style="text-align: left !important;">
-									<span th:text="${workItem.State}" />
+									<span th:text="${workItem.state}" />
 								</td>
 								<td style="text-align: left !important;">
-									<span th:text="${workItem.AreaPath}" />
+									<span th:text="${workItem.areaPath}" />
 								</td>
 								<td style="text-align: left !important;">
 									<span th:text="${workItem.createdDate}" />
@@ -69,7 +69,8 @@
               
                 $(".workItems").fancyTable({
                   /* Column number for initial sorting*/
-                   //sortColumn:6,
+                   sortColumn:6,
+                   sortOrder: 'descending', 
                    /* Setting pagination or enabling */
                    pagination: true,
                    /* Rows per page kept for display */

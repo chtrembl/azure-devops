@@ -24,7 +24,6 @@ import com.chtrembl.adoboardsview.model.ContainerEnvironment;
 import com.chtrembl.adoboardsview.model.Project;
 import com.chtrembl.adoboardsview.model.ProjectWrapper;
 import com.chtrembl.adoboardsview.model.WebRequest;
-import com.chtrembl.adoboardsview.model.WorkItem;
 import com.chtrembl.adoboardsview.model.WorkItemWrapper;
 
 import jakarta.annotation.PostConstruct;
@@ -123,6 +122,7 @@ public class ADOServiceImpl implements ADOService {
 
 	@Override
 	public void loadWorkItemIdsStep2() {
+		int largestWorkItemSize = 0;
 		for (Project project : this.containerEnvironment.getProjects()) {
 			try {
 				String uri = String.format(this.adoServicesWIQLWorkItemsUri, project.getId());
@@ -138,11 +138,20 @@ public class ADOServiceImpl implements ADOService {
 						.body(BodyInserters.fromValue(this.adoServicesWIQLWorkItemsQuery)).retrieve()
 						.bodyToMono(WorkItemWrapper.class).block();
 				project.setWorkItems(workItemWrapper.workItems());
+				if(workItemWrapper.workItems().size()>largestWorkItemSize)
+				{
+					largestWorkItemSize = workItemWrapper.workItems().size();
+				}
 				logger.info(String.format("sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 				Thread.sleep(this.adoRestAPIRequestDelay);
 			} catch (Exception e) {
 				logger.error("Exception loading workitem ids for project: , skipping it...", project.getName());
 			}
+		}
+		
+		// lousy hack to left pad because the presentation sort wasn't working
+		for (Project project : this.containerEnvironment.getProjects()) {
+			project.setWorkItemSize(org.apache.commons.lang3.StringUtils.leftPad(String.valueOf(project.getWorkItems().size()), String.valueOf(largestWorkItemSize).length(), "0"));
 		}
 	}
 

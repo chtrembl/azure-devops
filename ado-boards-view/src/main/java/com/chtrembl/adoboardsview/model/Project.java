@@ -12,7 +12,8 @@ public class Project implements Serializable {
 	private String url = null;
 	private String visibility = null;
 	private String lastUpdatedDate = null; //this is going to be set by the latest work item that we retrieve
-	private List<WorkItem> workItems = null;
+	private List<WorkItem> workItems = new ArrayList<WorkItem>();
+	private String workItemSize = null;
 	
 	public String getId() {
 		return id;
@@ -57,5 +58,11 @@ public class Project implements Serializable {
 	
 	public void setWorkItems(List<WorkItem> workItems) {
 		this.workItems = workItems;
+	}
+	public String getWorkItemSize() {
+		return workItemSize;
+	}
+	public void setWorkItemSize(String workItemSize) {
+		this.workItemSize = workItemSize;
 	}
 }
