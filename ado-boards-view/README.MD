@@ -28,7 +28,7 @@ Head to http://localhost:8080 to view the running ado-boards-view app
 
 ![project view](https://github.com/chtrembl/azure-devops/blob/main/ado-boards-view/project.png)
 
-To kill the app from the command line: ```ctrl+c```
+To kill the app from the command line: ```ctrl+c``` from the terminal
 
 ## 2. Build and Run the ado-boards-view app using Docker
 
@@ -89,4 +89,4 @@ devops/ado-boards-view/src/main/resources/wiql/workItemsWIQL.txt```  Keep this i
 
 	![project view](https://github.com/chtrembl/azure-devops/blob/main/ado-boards-view/project.png)
 
- - To kill the app from the command line: ```ctrl+c```
+ - To kill the app from the command line: ```ctrl+c``` from the terminal
