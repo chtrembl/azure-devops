@@ -10,7 +10,7 @@ You can certainly import this repository ado-boards-view project into your IDE a
 1. install Java 17 JRE and run the ado-boards-view artifact jar. (Step 1 below)
 2. install Docker Desktop and and build a Docker container for ado-boards-view and run the container with Docker. (Step 2 below)
 
-## 1. Run the ado-boards-view using Java
+## 1. Run the ado-boards-view app using Java
 Clone/For/Download the repo. You'll notice ado-boards-view-0.0.1-SNAPSHOT.jar
 
 Run the following command from your CLI of choice
