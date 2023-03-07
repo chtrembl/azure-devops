@@ -7,13 +7,14 @@ The DevOps Boards View App is a standalone Spring Boot App that you can run loca
 
 You can certainly import this repository ado-boards-view project into your IDE and run and/or make changes etc... For folks looking to just run the app without having any desire to make changes, there are two options. 
 
-1. install Java 17 JRE and run the ado-boards-view artifact jar 
-2. install Docker Desktop and and build a Docker container for ado-boards-view and run the container with Docker.
+1. install Java 17 JRE and run the ado-boards-view artifact jar. (Step 1 below)
+2. install Docker Desktop and and build a Docker container for ado-boards-view and run the container with Docker. (Step 2 below)
 
 ## 1. Run the ado-boards-view using Java
 Clone/For/Download the repo. You'll notice ado-boards-view-0.0.1-SNAPSHOT.jar
 
 Run the following command from your CLI of choice
+
 ```java -DADO_SERVICES_ORG=org -DADO_SERVICES_PAT=pat -DADO_WORK_ITEM_HISTORY=-120d ADO_REST_API_REQUESTDELAY=1 -jar ado-boards-view-0.0.1-SNAPSHOT.jar```
 
  - ADO_SERVICES_ORG is your DevOps Org
