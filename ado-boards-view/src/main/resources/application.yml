@@ -21,6 +21,7 @@ ado:
     wiql:
       workitems:
         uri: /%s/_apis/wit/wiql?api-version=7.0
+        types: ${ADO_WORK_ITEM_TYPES:Bug,Epic,Feature,Issue,Task,Test Case,Test Plan,Test Suite,User Story}
   workitem:
     history: ${ADO_WORK_ITEM_HISTORY:-30d} #query the last 30 days
   rest:

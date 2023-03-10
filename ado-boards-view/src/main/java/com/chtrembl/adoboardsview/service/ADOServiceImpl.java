@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,9 @@ public class ADOServiceImpl implements ADOService {
 	@Value("${ado.services.wiql.workitems.uri:}")
 	private String adoServicesWIQLWorkItemsUri;
 
+	@Value("${ado.services.wiql.workitems.types:}")
+	private String adoServicesWIQLWorkItemsTypes;
+
 	@Value("${ado.workitem.history:-30d}")
 	private String adoWorkItemHistory;
 
@@ -89,7 +93,7 @@ public class ADOServiceImpl implements ADOService {
 		this.adoServicesWIQLWorkItemsQuery = String.format(
 				"{\"query\":\"" + this.workItemsWIQLResource.getContentAsString(StandardCharsets.UTF_8)
 						.replace("\n", "").replace("\r", "").replaceAll(" +", " ") + "\"}",
-				this.adoWorkItemHistory, this.adoWorkItemHistory);
+				this.contructWorkItemsTypesWIQL(this.adoServicesWIQLWorkItemsTypes),this.adoWorkItemHistory, this.adoWorkItemHistory);
 
 		logger.info("starting loadProjectsStep1()...");
 		this.loadProjectsStep1();
@@ -114,6 +118,7 @@ public class ADOServiceImpl implements ADOService {
 						this.adoServicesPAT))
 				.retrieve().bodyToMono(ProjectWrapper.class).block();
 		projects = projectWrapper.projects();
+		
 		if (projects.size() > 1) {
 			projects = projects.stream().sorted(Comparator.comparing(Project::getName)).collect(Collectors.toList());
 		}
@@ -145,7 +150,7 @@ public class ADOServiceImpl implements ADOService {
 				logger.info(String.format("sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 				Thread.sleep(this.adoRestAPIRequestDelay);
 			} catch (Exception e) {
-				logger.error("Exception loading workitem ids for project: , skipping it...", project.getName());
+				logger.error("Exception loading workitem ids for project: %s, error: %s, skipping it...", project.getName(), e.getMessage());
 			}
 		}
 		
@@ -163,8 +168,9 @@ public class ADOServiceImpl implements ADOService {
 			if (!project.getWorkItems().isEmpty()) {
 				try
 				{
+				//200 is the ADO REST limit, grab the latest 200
 				String ids = project.getWorkItems().stream().map(w -> String.valueOf(w.getId()))
-						.collect(Collectors.joining(","));
+						.limit(200).collect(Collectors.joining(","));
 
 				String workItemsBatchRequestBody = String.format(
 						this.workItemsJSONResource.getContentAsString(StandardCharsets.UTF_8)
@@ -187,7 +193,7 @@ public class ADOServiceImpl implements ADOService {
 				Thread.sleep(this.adoRestAPIRequestDelay);
 				}
 				catch(Exception e) {
-					logger.error("Exception loading workitem meta data for project: , skipping it...", project.getName());
+					logger.error("Exception loading workitem meta data for project: %s , error: %s, skipping it...", project.getName(), e.getMessage());
 				}
 			}
 			if(!StringUtils.hasText(project.getLastUpdatedDate()))
@@ -195,6 +201,15 @@ public class ADOServiceImpl implements ADOService {
 				project.setLastUpdatedDate("0000-00-00T00:00:00.000Z");
 			}
 		}
+	}
+
+	public static final String contructWorkItemsTypesWIQL(String adoServicesWIQLWorkItemsTypes) {
+		List<String> workItemTypes = Stream.of(adoServicesWIQLWorkItemsTypes.split(",", -1))
+				  .collect(Collectors.toList());
+		
+		String wiql = String.format("(%s)", workItemTypes.stream().map(t -> String.format("[System.WorkItemType] == '%s'", t)).collect(Collectors.joining(" OR ")));
+		
+		return wiql;
 	}
 
 	private static final String getBasicAuthenticationHeader(String username, String password) {

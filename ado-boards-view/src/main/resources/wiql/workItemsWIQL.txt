@@ -8,7 +8,7 @@ FROM
 WHERE 
         [System.TeamProject] = @project 
 AND 
-        ([System.WorkItemType] == 'Bug' OR [System.WorkItemType] == 'Epic' OR [System.WorkItemType] == 'Feature' OR [System.WorkItemType] == 'Issue' OR [System.WorkItemType] == 'Task' OR [System.WorkItemType] == 'Test Case' OR [System.WorkItemType] == 'Test Plan' OR [System.WorkItemType] == 'Test Suite' OR [System.WorkItemType] == 'User Story')
+		%s
 AND 
         ([System.CreatedDate] > @StartOfDay('%s') OR [System.ChangedDate] > @StartOfDay('%s')) 
 ORDER BY 
