@@ -21,7 +21,7 @@ Run the following command from your CLI of choice
  - ADO_SERVICES_PAT is your DevOps Personal Access Token with Boards and Projects Read Access
  - ADO_WORK_ITEM_HISTORY is how many days back to query
  - ADO_REST_API_REQUESTDELAY is the delay in ms to wait in between subsequent HTTP request for each project within an organization
- - ADO_WORK_ITEM_TYPES is the work item types to bring back from your Agile processes, the default is "Bug,Epic,Feature,Issue,Task,Test Case,Test Plan,Test Suite,User Story", if you need to override with your own you can do so, for example -DADO_WORK_ITEM_TYPES="FOOBAR Item,Test Item,User Story,Feature"
+ - ADO_WORK_ITEM_TYPES is the work item types to bring back from your Agile processes, the default is to bring back all work items that are found, if you need to override with your own you can do so, for example -DADO_WORK_ITEM_TYPES="Bug,Epic,Feature,Issue,Task,Test Case,Test Plan,Test Suite,User Story" or -DADO_WORK_ITEM_TYPES="Bug,Epic,Some Custom Item" etc....
 
 Head to http://localhost:8080 to view the running ado-boards-view app
 
