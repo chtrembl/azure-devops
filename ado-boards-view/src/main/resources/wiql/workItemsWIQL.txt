@@ -7,7 +7,7 @@ FROM
         workitems 
 WHERE 
         [System.TeamProject] = @project 
-AND 
+
 		%s
 AND 
         ([System.CreatedDate] > @StartOfDay('%s') OR [System.ChangedDate] > @StartOfDay('%s')) 

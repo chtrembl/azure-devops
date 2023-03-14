@@ -89,7 +89,7 @@ public class ADOServiceImpl implements ADOService {
 		this.adoWebClient = WebClient.builder().baseUrl(this.adoServicesUrl).build();
 
 		logger.info("loading ADO data...");
-
+		
 		this.adoServicesWIQLWorkItemsQuery = String.format(
 				"{\"query\":\"" + this.workItemsWIQLResource.getContentAsString(StandardCharsets.UTF_8)
 						.replace("\n", "").replace("\r", "").replaceAll(" +", " ") + "\"}",
@@ -131,7 +131,7 @@ public class ADOServiceImpl implements ADOService {
 		for (Project project : this.containerEnvironment.getProjects()) {
 			try {
 				String uri = String.format(this.adoServicesWIQLWorkItemsUri, project.getId());
-				logger.info(String.format("retrieving workitem ids for project: from %s%s with the wiql query: %s",project.getName(),
+				logger.info(String.format("retrieving workitem ids for project: %s from %s%s with the wiql query: %s",project.getName(),
 						this.adoServicesUrl, uri, this.adoServicesWIQLWorkItemsQuery));
 				Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
 				WorkItemWrapper workItemWrapper = this.adoWebClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
@@ -204,10 +204,15 @@ public class ADOServiceImpl implements ADOService {
 	}
 
 	public static final String contructWorkItemsTypesWIQL(String adoServicesWIQLWorkItemsTypes) {
+		if(!StringUtils.hasText(adoServicesWIQLWorkItemsTypes))
+		{
+			return "";
+		}
+		
 		List<String> workItemTypes = Stream.of(adoServicesWIQLWorkItemsTypes.split(",", -1))
 				  .collect(Collectors.toList());
 		
-		String wiql = String.format("(%s)", workItemTypes.stream().map(t -> String.format("[System.WorkItemType] == '%s'", t)).collect(Collectors.joining(" OR ")));
+		String wiql = String.format(" AND (%s)", workItemTypes.stream().map(t -> String.format("[System.WorkItemType] == '%s'", t)).collect(Collectors.joining(" OR ")));
 		
 		return wiql;
 	}
