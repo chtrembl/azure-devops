@@ -1,7 +1,7 @@
 
 ## Azure DevOps Boards View App
 
-This is not official Microsoft documentation but rather an opinionated approach/guidance
+This is NOT official Microsoft documentation but rather an opinionated approach/guidance
 
 Azure DevOps is awesome (as you probably already know)! However there are some really great tools for interacting with the data using the [Azure DevOps Rest API](https://learn.microsoft.com/en-us/rest/api/azure/devops/?view=azure-devops-rest-7.1)  and [WIQL Queries](https://learn.microsoft.com/en-us/azure/devops/boards/queries/wiql-syntax?view=azure-devops)
 
