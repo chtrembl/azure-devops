@@ -86,7 +86,12 @@ public class ADOServiceImpl implements ADOService {
 			throw new Exception(exception);
 		}
 
-		this.adoWebClient = WebClient.builder().baseUrl(this.adoServicesUrl).build();
+		int size = 10000 * 1024;
+    	logger.info(String.format("overriding webclient codec, maxInMemorySize:%smb",size/1024/1000));
+		this.adoWebClient = WebClient.builder().baseUrl(this.adoServicesUrl).codecs(codecs -> codecs
+	            .defaultCodecs()
+	            .maxInMemorySize(size))
+		    .build();
 
 		logger.info("loading ADO data...");
 		
