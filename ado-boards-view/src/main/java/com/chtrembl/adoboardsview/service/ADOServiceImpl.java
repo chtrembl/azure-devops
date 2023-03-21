@@ -155,7 +155,7 @@ public class ADOServiceImpl implements ADOService {
 				logger.info(String.format("sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 				Thread.sleep(this.adoRestAPIRequestDelay);
 			} catch (Exception e) {
-				logger.error("Exception loading workitem ids for project: %s, error: %s, skipping it...", project.getName(), e.getMessage());
+				logger.error(String.format("Exception loading workitem ids for project: %s, error: %s, skipping it...", project.getName(), e.getMessage()));
 			}
 		}
 		
@@ -198,7 +198,7 @@ public class ADOServiceImpl implements ADOService {
 				Thread.sleep(this.adoRestAPIRequestDelay);
 				}
 				catch(Exception e) {
-					logger.error("Exception loading workitem meta data for project: %s , error: %s, skipping it...", project.getName(), e.getMessage());
+					logger.error(String.format("Exception loading workitem meta data for project: %s , error: %s, skipping it...", project.getName(), e.getMessage()));
 				}
 			}
 			if(!StringUtils.hasText(project.getLastUpdatedDate()))
