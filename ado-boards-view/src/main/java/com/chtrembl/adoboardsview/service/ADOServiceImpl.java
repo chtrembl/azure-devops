@@ -67,6 +67,7 @@ public class ADOServiceImpl implements ADOService {
 	private int adoRestAPIRequestDelay;
 
 	private String adoServicesWIQLWorkItemsQuery;
+	private String adoServicesWIQLWorkItemsSecondaryQuery;
 
 	@Value("classpath:json/workItemsJSON.txt")
 	private Resource workItemsJSONResource;
@@ -101,6 +102,13 @@ public class ADOServiceImpl implements ADOService {
 						.replace("\n", "").replace("\r", "").replace("\t", "").replaceAll(" +", " ") + "\"}",
 				this.contructWorkItemsTypesWIQL(this.adoServicesWIQLWorkItemsTypes),this.adoWorkItemHistory, this.adoWorkItemHistory);
 
+		
+		//for projects that exhaust the 20,000 work item limit (when work item history is a very large parameter, run a second call with last 14 days)
+		this.adoServicesWIQLWorkItemsSecondaryQuery = String.format(
+				"{\"query\":\"" + this.workItemsWIQLResource.getContentAsString(StandardCharsets.UTF_8)
+				.replace("\n", "").replace("\r", "").replace("\t", "").replaceAll(" +", " ") + "\"}",
+		this.contructWorkItemsTypesWIQL(this.adoServicesWIQLWorkItemsTypes),"-30d", "-30d");
+		
 		logger.info("starting loadProjectsStep1()...");
 		this.loadProjectsStep1();
 		logger.info("starting loadProjectsStep2()...");
@@ -136,36 +144,50 @@ public class ADOServiceImpl implements ADOService {
 		int largestWorkItemSize = 0;
 		for (Project project : this.containerEnvironment.getProjects()) {
 			try {
-				String uri = String.format(this.adoServicesWIQLWorkItemsUri, project.getId());
-				logger.info(String.format("retrieving workitem ids for project: %s from %s%s with the wiql query: %s",project.getName(),
-						this.adoServicesUrl, uri, this.adoServicesWIQLWorkItemsQuery));
-				Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
-				WorkItemWrapper workItemWrapper = this.adoWebClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
-						.headers(consumer).header("Accept", MediaType.APPLICATION_JSON_VALUE)
-						.header("Content-Type", MediaType.APPLICATION_JSON_VALUE).header("Cache-Control", "no-cache")
-						.header("Authorization",
-								getBasicAuthenticationHeader(this.containerEnvironment.getAdoServicesOrg(),
-										this.adoServicesPAT))
-						.body(BodyInserters.fromValue(this.adoServicesWIQLWorkItemsQuery)).retrieve()
-						.bodyToMono(WorkItemWrapper.class).block();
-				project.setWorkItems(workItemWrapper.workItems());
-				if(workItemWrapper.workItems().size()>largestWorkItemSize)
-				{
-					largestWorkItemSize = workItemWrapper.workItems().size();
-				}
+				setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsQuery);
+			} catch (Exception e) {
+				logger.error(String.format("Exception loading workitem ids for project: %s, post payload: %s, error: %s, skipping it... going to retry with shorter time frame", project.getName(), this.adoServicesWIQLWorkItemsQuery, e.getMessage()));
+				setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsSecondaryQuery);
+			}
+
+			if(StringUtils.hasText(project.getWorkItemSize()) && Integer.parseInt(project.getWorkItemSize()) > largestWorkItemSize)
+			{
+				largestWorkItemSize = Integer.parseInt(project.getWorkItemSize());
+			}
+			 
+			try
+			{
 				logger.info(String.format("sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 				Thread.sleep(this.adoRestAPIRequestDelay);
-			} catch (Exception e) {
-				logger.error(String.format("Exception loading workitem ids for project: %s, post payload: %s, error: %s, skipping it... trace: %s", project.getName(), this.adoServicesWIQLWorkItemsQuery, e.getMessage(), ExceptionUtils.getStackTrace(e)));
+			} catch(Exception e)
+			{
+				logger.error(String.format("error sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 			}
 		}
 		
-		// lousy hack to left pad because the presentation sort wasn't working
+		// lousy hack to left pad because the presentation js sort wasn't working
 		for (Project project : this.containerEnvironment.getProjects()) {
 			project.setWorkItemSize(org.apache.commons.lang3.StringUtils.leftPad(String.valueOf(project.getWorkItems().size()), String.valueOf(largestWorkItemSize).length(), "0"));
 		}
 	}
 
+	public void setWorkItemsFromPOSTCall(Project project, String query)
+	{
+		String uri = String.format(this.adoServicesWIQLWorkItemsUri, project.getId());
+		logger.info(String.format("retrieving workitem ids for project: %s from %s%s with the wiql query: %s",project.getName(),
+				this.adoServicesUrl, uri, query));
+		Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
+		WorkItemWrapper workItemWrapper = this.adoWebClient.post().uri(uri).accept(MediaType.APPLICATION_JSON)
+				.headers(consumer).header("Accept", MediaType.APPLICATION_JSON_VALUE)
+				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE).header("Cache-Control", "no-cache")
+				.header("Authorization",
+						getBasicAuthenticationHeader(this.containerEnvironment.getAdoServicesOrg(),
+								this.adoServicesPAT))
+				.body(BodyInserters.fromValue(query)).retrieve()
+				.bodyToMono(WorkItemWrapper.class).block();
+		project.setWorkItems(workItemWrapper.workItems());
+	}
+	
 	@Override
 	public void loadWorkItemMetaDataStep3() {
 		logger.info(String.format("retrieving workitem meta data from %s%s", this.adoServicesUrl,
