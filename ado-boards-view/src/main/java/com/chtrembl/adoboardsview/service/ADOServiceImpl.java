@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class ADOServiceImpl implements ADOService {
 		
 		this.adoServicesWIQLWorkItemsQuery = String.format(
 				"{\"query\":\"" + this.workItemsWIQLResource.getContentAsString(StandardCharsets.UTF_8)
-						.replace("\n", "").replace("\r", "").replaceAll(" +", " ") + "\"}",
+						.replace("\n", "").replace("\r", "").replace("\t", "").replaceAll(" +", " ") + "\"}",
 				this.contructWorkItemsTypesWIQL(this.adoServicesWIQLWorkItemsTypes),this.adoWorkItemHistory, this.adoWorkItemHistory);
 
 		logger.info("starting loadProjectsStep1()...");
@@ -155,7 +156,7 @@ public class ADOServiceImpl implements ADOService {
 				logger.info(String.format("sleeping %sms between requests...",this.adoRestAPIRequestDelay));
 				Thread.sleep(this.adoRestAPIRequestDelay);
 			} catch (Exception e) {
-				logger.error(String.format("Exception loading workitem ids for project: %s, error: %s, skipping it... trace: %s", project.getName(), e.getMessage(), e.getStackTrace()));
+				logger.error(String.format("Exception loading workitem ids for project: %s, post payload: %s, error: %s, skipping it... trace: %s", project.getName(), this.adoServicesWIQLWorkItemsQuery, e.getMessage(), ExceptionUtils.getStackTrace(e)));
 			}
 		}
 		
@@ -171,13 +172,14 @@ public class ADOServiceImpl implements ADOService {
 				this.adoServicesProjectsUri));
 		for (Project project : this.containerEnvironment.getProjects()) {
 			if (!project.getWorkItems().isEmpty()) {
+				String workItemsBatchRequestBody = null;
 				try
 				{
 				//200 is the ADO REST limit, grab the latest 200
 				String ids = project.getWorkItems().stream().map(w -> String.valueOf(w.getId()))
 						.limit(200).collect(Collectors.joining(","));
 
-				String workItemsBatchRequestBody = String.format(
+				workItemsBatchRequestBody = String.format(
 						this.workItemsJSONResource.getContentAsString(StandardCharsets.UTF_8)
 								.replace("\n", "").replace("\r", "").replaceAll(" +", " "),
 						ids);
@@ -198,7 +200,7 @@ public class ADOServiceImpl implements ADOService {
 				Thread.sleep(this.adoRestAPIRequestDelay);
 				}
 				catch(Exception e) {
-					logger.error(String.format("Exception loading workitem meta data for project: %s , error: %s, skipping it... trace: %s", project.getName(), e.getMessage(), e.getStackTrace()));
+					logger.error(String.format("Exception loading workitem meta data for project: %s, post payload: %s, error: %s, skipping it... trace: %s", project.getName(), workItemsBatchRequestBody, e.getMessage(), ExceptionUtils.getStackTrace(e)));
 				}
 			}
 			if(!StringUtils.hasText(project.getLastUpdatedDate()))
