@@ -150,9 +150,9 @@ public class ADOServiceImpl implements ADOService {
 				setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsSecondaryQuery);
 			}
 
-			if(StringUtils.hasText(project.getWorkItemSize()) && Integer.parseInt(project.getWorkItemSize()) > largestWorkItemSize)
+			if(project.getWorkItems().size() > largestWorkItemSize)
 			{
-				largestWorkItemSize = Integer.parseInt(project.getWorkItemSize());
+				largestWorkItemSize = project.getWorkItems().size();
 			}
 			 
 			try
