@@ -147,7 +147,13 @@ public class ADOServiceImpl implements ADOService {
 				setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsQuery);
 			} catch (Exception e) {
 				logger.error(String.format("Exception loading workitem ids for project: %s, post payload: %s, error: %s, skipping it... going to retry with shorter time frame", project.getName(), this.adoServicesWIQLWorkItemsQuery, e.getMessage()));
-				setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsSecondaryQuery);
+				try
+				{
+					setWorkItemsFromPOSTCall(project, this.adoServicesWIQLWorkItemsSecondaryQuery);
+				} catch(Exception e2)
+				{
+					logger.error(String.format("Exception in setWorkItemsFromPOSTCall skipping for this project: %s this could be because too many work items exist for WIQL query to execute", project.getName(), e2.getMessage()));
+				}
 			}
 
 			if(project.getWorkItems().size() > largestWorkItemSize)

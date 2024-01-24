@@ -18,14 +18,12 @@
 	</properties>
 	<dependencies>
 		<!-- MAC M1 CHIPS ONLY START-->
-		<!-- 
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-resolver-dns-native-macos</artifactId>
 			<version>4.1.73.Final</version>
 			<classifier>osx-aarch_64</classifier>
 		</dependency>
-		-->
 		<!-- MAC M1 CHIPS ONLY END-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
